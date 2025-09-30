@@ -1,0 +1,38 @@
+services:
+  frontend:
+    # Reemplaza 'tu-usuario-de-github' con tu nombre de usuario real
+    image: ghcr.io/alexscorpic19/biottic-frontend:${IMAGE_TAG:-latest}
+    ports:
+      - "8081:80"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+  backend:
+    # Reemplaza 'tu-usuario-de-github' con tu nombre de usuario real
+    image: ghcr.io/alexscorpic19/biottic-backend:${IMAGE_TAG:-latest}
+    env_file:
+      - ../backend/.env
+    ports:
+      - "5001:5000"
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+    volumes:
+      - ../backend/uploads:/usr/src/app/uploads
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

@@ -1,0 +1,79 @@
+Instalacion de dependencias, depende de la version, se debe revisar el archivo pom.xml
+Para la version 4.2.0 snapshot
+java 17
+mvn 3.6
+docker
+postgresql 
+Despues de instalar postgresql, se debe crear una base de datos llamada thingsboard
+y modificar el archivo thingsboard.yml, agregando la base de datos y la contraseña
+
+Backend
+Modifica thingsboard.yml para la Instalación:
+
+spring:
+  jpa:
+    generate-ddl: false # Importante: false para la instalación
+    # ... (otras propiedades de jpa como show-sql pueden quedar como están)
+    hibernate:
+      default_schema: public
+      ddl-auto: "none" # Importante: "none" para la instalación
+# ... (resto de la configuración de datasource)
+
+Recompila el Proyecto: Este paso es CRUCIAL para que los cambios anteriores en thingsboard.yml se incluyan en el archivo JAR que usará el script de instalación.
+
+comando de compilacion
+cd /home/biottic/Documentos/Biolabstb/thingsboard
+mvn clean install -DskipTests
+
+Limpiar la base de datos thingsboard
+sudo -u postgres psql
+
+DROP DATABASE IF EXISTS thingsboard;
+CREATE DATABASE thingsboard OWNER thingsboard;
+GRANT ALL PRIVILEGES ON DATABASE thingsboard TO thingsboard;
+\c thingsboard
+GRANT ALL ON SCHEMA public TO thingsboard;
+ALTER ROLE thingsboard IN DATABASE thingsboard SET search_path = public;
+\q
+
+Permisos de directorio logs:
+sudo mkdir -p /var/log/thingsboard
+sudo chown biottic:biottic /var/log/thingsboard
+
+ejecutar el archivo install_dev_db.sh, que se crea despues de compilar
+cd /home/biottic/Documentos/Biolabstb/thingsboard/application/target/bin/install/
+chmod +x install_dev_db.sh
+./install_dev_db.sh
+
+Si la Instalación es Exitosa ("ThingsBoard DB installed successfully!"):
+¡Perfecto! Ahora la base de datos tiene el esquema y los datos iniciales.
+Modifica thingsboard.yml para el Arranque Normal: Vuelve a thingsboard.yml y configúralo para el funcionamiento normal (por ejemplo, usando validate o update):
+
+spring:
+  jpa:
+    generate-ddl: true # Opcional si ddl-auto no es 'none'
+    # ... (otras propiedades de jpa)
+    hibernate:
+      default_schema: public
+      ddl-auto: "${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}" # O update
+# ... (resto de la configuración de datasource)
+
+recompilacion del proyecto:
+cd ~/Documentos/Biolabstb/thingsboard/
+mvn clean install -DskipTests
+
+comando para ejecutar la plataforma thingsboard
+cd ~/Documentos/Biolabstb/thingsboard/application/target/
+java -jar thingsboard-4.2.0-SNAPSHOT-boot.jar
+
+***************************************************************************
+java -jar thingsboard-4.2.0-SNAPSHOT-boot.jar \
+  --spring.jpa.hibernate.ddl-auto=update \
+  --spring.datasource.url=jdbc:postgresql://localhost:5432/thingsboard \
+  --spring.datasource.username=thingsboard \
+  --spring.datasource.password=thingsboard
+
+contraseña base de datos
+CREATE USER thingsboard WITH PASSWORD 'bpassword';
+
+****************************************************************************

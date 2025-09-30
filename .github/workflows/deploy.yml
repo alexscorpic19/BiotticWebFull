@@ -1,0 +1,80 @@
+name: Deploy BiotticWebFull to VPS
+
+on:
+  push:
+    branches:
+      - main # O la rama que uses para producción
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          dockerfile: ./deployment/Dockerfile.backend
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/biottic-backend:${{ github.sha }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          dockerfile: ./deployment/Dockerfile.frontend
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/biottic-frontend:${{ github.sha }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/deployer/biottic-web-app
+            
+            # Crear archivos .env en el servidor a partir de los secrets
+            # Asegúrate de haber añadido todos los secrets necesarios en GitHub
+            echo "MONGO_URI=${{ secrets.MONGO_URI }}" > ./backend/.env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> ./backend/.env
+            echo "PORT=5000" >> ./backend/.env
+            echo "NODE_ENV=production" >> ./backend/.env
+            echo "WOMPI_PUBLIC_KEY=${{ secrets.WOMPI_PUBLIC_KEY }}" >> ./backend/.env
+            echo "WOMPI_PRIVATE_KEY=${{ secrets.WOMPI_PRIVATE_KEY }}" >> ./backend/.env
+            echo "WOMPI_EVENTS_SECRET=${{ secrets.WOMPI_EVENTS_SECRET }}" >> ./backend/.env
+            echo "WOMPI_INTEGRITY_SECRET=${{ secrets.WOMPI_INTEGRITY_SECRET }}" >> ./backend/.env
+            
+            echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > ./frontend/.env
+
+            # Iniciar sesión en GHCR en el VPS
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+            # Exportar la etiqueta de la imagen para que docker-compose la use
+            export IMAGE_TAG=${{ github.sha }}
+
+            # Descargar las nuevas imágenes y reiniciar los servicios
+            docker-compose -f deployment/docker-compose.yml pull
+            docker-compose -f deployment/docker-compose.yml up -d
+
+            # Limpiar imágenes viejas y no utilizadas
+            docker image prune -af
