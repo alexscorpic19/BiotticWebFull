@@ -65,16 +65,16 @@ jobs:
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
+        env:
+          BACKEND_ENV_B64: ${{ steps.create_backend_env.outputs.backend_env_b64 }}
+          FRONTEND_ENV_B64: ${{ steps.create_frontend_env.outputs.frontend_env_b64 }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO_OWNER: ${{ github.repository_owner }}
+          IMAGE_TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          env:
-            BACKEND_ENV_B64: ${{ steps.create_backend_env.outputs.backend_env_b64 }}
-            FRONTEND_ENV_B64: ${{ steps.create_frontend_env.outputs.frontend_env_b64 }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            GITHUB_REPO_OWNER: ${{ github.repository_owner }}
-            IMAGE_TAG: ${{ github.sha }}
           script: |
             PROJECT_DIR="/home/deployer/biottic-web-app"
 
