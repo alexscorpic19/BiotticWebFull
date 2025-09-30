@@ -94,13 +94,17 @@ jobs:
             echo $BACKEND_ENV_B64 | base64 -d > ./backend/.env
             echo $FRONTEND_ENV_B64 | base64 -d > ./frontend/.env
 
-            # Crear .env para docker-compose con el IMAGE_TAG
-            echo "IMAGE_TAG=$IMAGE_TAG" > .env
+            # Crear .env para docker-compose en el directorio de deployment
+            echo "IMAGE_TAG=$IMAGE_TAG" > ./deployment/.env
 
             # Iniciar sesión en GHCR en el VPS usando el PAT
+            echo "Logging into GHCR..."
             echo $GHCR_PAT | docker login ghcr.io -u $GITHUB_REPO_OWNER --password-stdin
 
             # Usar "docker compose" (con espacio).
-            # docker-compose leerá automáticamente el .env en el directorio actual.
+            # docker-compose leerá automáticamente el .env en el mismo directorio que el yml.
+            echo "Pulling new images..."
             docker compose -f deployment/docker-compose.yml pull
+            echo "Starting services..."
             docker compose -f deployment/docker-compose.yml up -d --remove-orphans
+            echo "Deployment finished."
