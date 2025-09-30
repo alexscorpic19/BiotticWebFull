@@ -50,6 +50,18 @@ jobs:
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          # Pasar secrets y variables de contexto como variables de entorno al script
+          env:
+            MONGO_URI: ${{ secrets.MONGO_URI }}
+            JWT_SECRET: ${{ secrets.JWT_SECRET }}
+            WOMPI_PUBLIC_KEY: ${{ secrets.WOMPI_PUBLIC_KEY }}
+            WOMPI_PRIVATE_KEY: ${{ secrets.WOMPI_PRIVATE_KEY }}
+            WOMPI_EVENTS_SECRET: ${{ secrets.WOMPI_EVENTS_SECRET }}
+            WOMPI_INTEGRITY_SECRET: ${{ secrets.WOMPI_INTEGRITY_SECRET }}
+            VITE_API_URL: ${{ secrets.VITE_API_URL }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_REPO_OWNER: ${{ github.repository_owner }}
+            IMAGE_TAG: ${{ github.sha }}
           script: |
             PROJECT_DIR="/home/deployer/biottic-web-app"
 
@@ -65,28 +77,25 @@ jobs:
               cd "$PROJECT_DIR"
             fi
 
-            # Crear backend/.env usando un heredoc para más robustez
+            # Crear backend/.env usando las variables de entorno pasadas al script
             cat > ./backend/.env << EOF
-MONGO_URI=${{ secrets.MONGO_URI }}
-JWT_SECRET=${{ secrets.JWT_SECRET }}
+MONGO_URI=$MONGO_URI
+JWT_SECRET=$JWT_SECRET
 PORT=5000
 NODE_ENV=production
-WOMPI_PUBLIC_KEY=${{ secrets.WOMPI_PUBLIC_KEY }}
-WOMPI_PRIVATE_KEY=${{ secrets.WOMPI_PRIVATE_KEY }}
-WOMPI_EVENTS_SECRET=${{ secrets.WOMPI_EVENTS_SECRET }}
-WOMPI_INTEGRITY_SECRET=${{ secrets.WOMPI_INTEGRITY_SECRET }}
+WOMPI_PUBLIC_KEY=$WOMPI_PUBLIC_KEY
+WOMPI_PRIVATE_KEY=$WOMPI_PRIVATE_KEY
+WOMPI_EVENTS_SECRET=$WOMPI_EVENTS_SECRET
+WOMPI_INTEGRITY_SECRET=$WOMPI_INTEGRITY_SECRET
 EOF
 
             # Crear frontend/.env
             cat > ./frontend/.env << EOF
-VITE_API_URL=${{ secrets.VITE_API_URL }}
+VITE_API_URL=$VITE_API_URL
 EOF
 
             # Iniciar sesión en GHCR en el VPS
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-
-            # Exportar la etiqueta de la imagen para que docker-compose la use
-            export IMAGE_TAG=${{ github.sha }}
+            echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_REPO_OWNER --password-stdin
 
             # Usar "docker compose" (con espacio)
             docker compose -f deployment/docker-compose.yml pull
