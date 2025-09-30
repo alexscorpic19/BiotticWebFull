@@ -53,11 +53,14 @@ jobs:
           script: |
             PROJECT_DIR="/home/deployer/biottic-web-app"
 
-            # Clonar o actualizar el repositorio
-            if [ -d "$PROJECT_DIR" ]; then
+            # Clonar o actualizar el repositorio de forma robusta
+            if [ -d "$PROJECT_DIR/.git" ]; then
+              echo "Repository exists, pulling changes..."
               cd "$PROJECT_DIR"
               git pull
             else
+              echo "Repository does not exist, cloning fresh..."
+              rm -rf "$PROJECT_DIR"
               git clone https://github.com/alexscorpic19/BiotticWebFull.git "$PROJECT_DIR"
               cd "$PROJECT_DIR"
             fi
@@ -80,6 +83,6 @@ jobs:
             # Exportar la etiqueta de la imagen para que docker-compose la use
             export IMAGE_TAG=${{ github.sha }}
 
-            # Usar "docker compose" (con espacio) y sin el prune
+            # Usar "docker compose" (con espacio)
             docker compose -f deployment/docker-compose.yml pull
             docker compose -f deployment/docker-compose.yml up -d
