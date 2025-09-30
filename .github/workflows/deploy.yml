@@ -68,7 +68,7 @@ jobs:
         env:
           BACKEND_ENV_B64: ${{ steps.create_backend_env.outputs.backend_env_b64 }}
           FRONTEND_ENV_B64: ${{ steps.create_frontend_env.outputs.frontend_env_b64 }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
           IMAGE_TAG: ${{ github.sha }}
         with:
@@ -94,8 +94,8 @@ jobs:
             echo $BACKEND_ENV_B64 | base64 -d > ./backend/.env
             echo $FRONTEND_ENV_B64 | base64 -d > ./frontend/.env
 
-            # Iniciar sesión en GHCR en el VPS
-            echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_REPO_OWNER --password-stdin
+            # Iniciar sesión en GHCR en el VPS usando el PAT
+            echo $GHCR_PAT | docker login ghcr.io -u $GITHUB_REPO_OWNER --password-stdin
 
             # Usar "docker compose" (con espacio)
             docker compose -f deployment/docker-compose.yml pull
