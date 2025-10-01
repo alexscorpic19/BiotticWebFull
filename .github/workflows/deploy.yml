@@ -31,6 +31,9 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/biottic-backend:${{ github.sha }}
 
+      - name: Create frontend .env file for build
+        run: echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > frontend/.env
+
       - name: Build and push frontend image
         uses: docker/build-push-action@v4
         with:
