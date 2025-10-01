@@ -76,6 +76,7 @@ jobs:
           username: ${{ secrets.VPS_SSH_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
+            set -e # Falla el script si cualquier comando falla
             PROJECT_DIR="/home/deployer/biottic-web-app"
 
             # Clonar o actualizar el repositorio de forma robusta
@@ -94,17 +95,23 @@ jobs:
             echo $BACKEND_ENV_B64 | base64 -d > ./backend/.env
             echo $FRONTEND_ENV_B64 | base64 -d > ./frontend/.env
 
-            # Crear .env para docker-compose en el directorio de deployment
-            echo "IMAGE_TAG=$IMAGE_TAG" > ./deployment/.env
+            # --- DEBUGGING ---
+            echo "--- DEBUG INFO ---"
+            echo "Debug: The GITHUB_REPO_OWNER is: '$GITHUB_REPO_OWNER'"
+            echo "Debug: The IMAGE_TAG is: '$IMAGE_TAG'"
+            echo "Debug: Is GHCR_PAT set? (first 5 chars): '${GHCR_PAT:0:5}'"
+            echo "--- END DEBUG INFO ---"
+
+            # Crear .env para docker-compose de forma explícita
+            echo "IMAGE_TAG=$IMAGE_TAG" > ./deployment/docker-compose.env
 
             # Iniciar sesión en GHCR en el VPS usando el PAT
             echo "Logging into GHCR..."
             echo $GHCR_PAT | docker login ghcr.io -u $GITHUB_REPO_OWNER --password-stdin
 
-            # Usar "docker compose" (con espacio).
-            # docker-compose leerá automáticamente el .env en el mismo directorio que el yml.
+            # Usar "docker compose" con la bandera --env-file para máxima fiabilidad
             echo "Pulling new images..."
-            docker compose -f deployment/docker-compose.yml pull
+            docker compose --env-file ./deployment/docker-compose.env -f deployment/docker-compose.yml pull
             echo "Starting services..."
-            docker compose -f deployment/docker-compose.yml up -d --remove-orphans
+            docker compose --env-file ./deployment/docker-compose.env -f deployment/docker-compose.yml up -d --remove-orphans
             echo "Deployment finished."
