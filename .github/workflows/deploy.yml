@@ -65,17 +65,18 @@ jobs:
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
-        env:
-          BACKEND_ENV_B64: ${{ steps.create_backend_env.outputs.backend_env_b64 }}
-          FRONTEND_ENV_B64: ${{ steps.create_frontend_env.outputs.frontend_env_b64 }}
-          GHCR_PAT: ${{ secrets.GHCR_PAT }}
-          GITHUB_REPO_OWNER: ${{ github.repository_owner }}
-          IMAGE_TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
+            # Exportar variables de entorno de forma segura
+            export BACKEND_ENV_B64='${{ steps.create_backend_env.outputs.backend_env_b64 }}'
+            export FRONTEND_ENV_B64='${{ steps.create_frontend_env.outputs.frontend_env_b64 }}'
+            export GHCR_PAT='${{ secrets.GHCR_PAT }}'
+            export GITHUB_REPO_OWNER='${{ github.repository_owner }}'
+            export IMAGE_TAG='${{ github.sha }}'
+
             set -e # Falla el script si cualquier comando falla
             PROJECT_DIR="/home/deployer/biottic-web-app"
 
