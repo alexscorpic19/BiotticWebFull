@@ -3,7 +3,7 @@ services:
     # Reemplaza 'tu-usuario-de-github' con tu nombre de usuario real
     image: ghcr.io/alexscorpic19/biottic-frontend:${IMAGE_TAG:-latest}
     ports:
-      - "8081:80"
+      - "8082:80"
     networks:
       - app-network
     depends_on:

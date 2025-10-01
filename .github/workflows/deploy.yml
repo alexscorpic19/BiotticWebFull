@@ -112,6 +112,10 @@ jobs:
             echo "Logging into GHCR..."
             echo $GHCR_PAT | docker login ghcr.io -u $GITHUB_REPO_OWNER --password-stdin
 
+            # Detener y eliminar los contenedores antiguos para liberar los puertos
+            echo "Stopping existing services to free up ports..."
+            docker compose -f deployment/docker-compose.yml down
+
             # Usar "docker compose" con la bandera --env-file para máxima fiabilidad
             echo "Pulling new images..."
             docker compose --env-file ./deployment/docker-compose.env -f deployment/docker-compose.yml pull
