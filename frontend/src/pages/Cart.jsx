@@ -142,7 +142,7 @@ const Cart = () => {
                         <img loading="lazy" 
                           className="w-full h-full object-cover rounded-xl"
                           alt={item.name}
-                          src={item.images && item.images.length > 0 ? \`${BASE_URL.replace(\'/api\', \'\')}${item.images[0]}\` : 'https://via.placeholder.com/128'} // Use actual product image
+                          src={item.images && item.images.length > 0 ? `${BASE_URL.replace('/api', '')}${item.images[0]}` : 'https://via.placeholder.com/128'} // Use actual product image
                         />
                       </div>
 
