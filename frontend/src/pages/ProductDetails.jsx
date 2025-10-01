@@ -17,8 +17,7 @@ const ProductDetails = () => {
   const [mainImage, setMainImage] = useState('');
   const [showPdfs, setShowPdfs] = useState(false);
 
-  const getFullUrl = (path) => `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${path}`;
-
+  const getFullUrl = (path) => `${import.meta.env.VITE_API_URL.replace('/api', '')}${path}`;
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -140,7 +139,7 @@ const ProductDetails = () => {
                         {product.pdfs.map((pdf, index) => (
                           <a
                             key={index}
-                            href={`${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${pdf.path}`}
+                            href={`${import.meta.env.VITE_API_URL.replace('/api', '')}${pdf.path}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"

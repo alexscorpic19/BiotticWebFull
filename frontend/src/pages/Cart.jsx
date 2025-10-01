@@ -15,6 +15,7 @@ import {
 import { Button } from '../components/ui/button';
 import { useCart } from '../contexts/CartContext';
 import { formatPrice } from '@/lib/utils';
+import { BASE_URL } from '../config';
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, clearCart, getCartTotal } = useCart();
@@ -141,7 +142,7 @@ const Cart = () => {
                         <img loading="lazy" 
                           className="w-full h-full object-cover rounded-xl"
                           alt={item.name}
-                          src={item.images && item.images.length > 0 ? `http://localhost:3000${item.images[0]}` : 'https://via.placeholder.com/128'} // Use actual product image
+                          src={item.images && item.images.length > 0 ? \`${BASE_URL.replace(\'/api\', \'\')}${item.images[0]}\` : 'https://via.placeholder.com/128'} // Use actual product image
                         />
                       </div>
 

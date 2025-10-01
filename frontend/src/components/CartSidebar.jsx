@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { FaShoppingCart, FaTrash } from 'react-icons/fa';
 import { formatPrice } from '@/lib/utils';
+import { BASE_URL } from '../config';
 
 const CartSidebar = ({ isOpen, onClose }) => {
   const { cartItems, removeFromCart, updateQuantity, getCartTotal } = useCart();
@@ -31,7 +32,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
               <div className="flex items-center">
                 <img
                   loading="lazy"
-                  src={item.images[0]}
+                  src={\`${BASE_URL.replace(\'/api\', \'\')}${item.images[0]}\`}
                   alt={item.name}
                   className="w-16 h-16 object-cover rounded-md mr-4"
                 />
