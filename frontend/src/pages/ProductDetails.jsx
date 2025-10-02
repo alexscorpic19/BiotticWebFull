@@ -21,7 +21,7 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data } = await axios.get(`/products/${id}`);
+        const { data } = await axios.get(`/api/products/${id}`);
         setProduct(data);
         if (data.images && data.images.length > 0) {
           setMainImage(getFullUrl(data.images[0])); // Set first image as main
