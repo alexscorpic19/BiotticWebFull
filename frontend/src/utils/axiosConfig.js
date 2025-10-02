@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { BASE_URL } from '../config';
 
-// Set the base URL for all axios requests
-axios.defaults.baseURL = BASE_URL;
+const instance = axios.create({
+  baseURL: BASE_URL
+});
 
-axios.interceptors.request.use(
+instance.interceptors.request.use(
   (config) => {
     const userInfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null;
 
@@ -18,4 +19,4 @@ axios.interceptors.request.use(
   }
 );
 
-export default axios;
+export default instance;

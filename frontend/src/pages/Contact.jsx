@@ -16,7 +16,7 @@ import { Button } from '../components/ui/button';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import axios from 'axios';
+import axios from '@/utils/axiosConfig';
 
 const schema = yup.object().shape({
   name: yup.string().required('El nombre es requerido'),
