@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { BASE_URL } from '../../config';
+import { BASE_URL } from '../config';
 import { useCart } from '../contexts/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { Helmet } from 'react-helmet'; // Import Helmet
