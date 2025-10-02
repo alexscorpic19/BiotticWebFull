@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '@/utils/axiosConfig';
 import { useParams } from 'react-router-dom';
-import { BASE_URL } from '../config';
 import { useCart } from '../contexts/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { Helmet } from 'react-helmet'; // Import Helmet
@@ -18,14 +17,13 @@ const ProductDetails = () => {
   const [mainImage, setMainImage] = useState('');
   const [showPdfs, setShowPdfs] = useState(false);
 
-  const getFullUrl = (path) => `${BASE_URL}${path}`;
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/products/${id}`);
+        const { data } = await axios.get(`/products/${id}`);
         setProduct(data);
         if (data.images && data.images.length > 0) {
-          setMainImage(getFullUrl(data.images[0])); // Set first image as main
+          setMainImage(data.images[0]); // Set first image as main
         }
         setLoading(false);
       } catch (err) {
@@ -43,66 +41,17 @@ const ProductDetails = () => {
     }
   };
 
-  const handleThumbnailClick = (imagePath) => {
-    setMainImage(getFullUrl(imagePath));
-  };
-
-  if (loading) return <div className="text-center text-xl mt-8">Cargando detalles del producto...</div>;
-  if (error) return <div className="text-center text-xl mt-8 text-red-500">Error: {error}</div>;
-  if (!product) return <div className="text-center text-xl mt-8">Producto no encontrado.</div>;
-
-  return (
-    <>
-      <Helmet>
-        <title>{product.name} - Biottic</title>
-        <meta name="description" content={product.description} />
-      </Helmet>
-
-      {/* Hero Section */}
-      <section className="relative pt-24 pb-16 bg-gradient-to-br from-green-900 via-blue-600 to-teal-800 overflow-hidden">
-        <div className="absolute inset-0 tech-pattern opacity-20"></div>
-        
-        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-6"
-            >
-              <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-300">
-                  {product.name}
-                </span>
-              </h1>
-              
-              <p className="text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed">
-                Detalles completos de nuestro producto.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-12">
-        <div className="max-w-7xl mx-auto p-4 bg-white dark:bg-gray-800 shadow-lg dark:shadow-2xl dark:shadow-gray-900/50 rounded-lg">
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-1/2">
-              {mainImage && (
-                <img loading="lazy" src={mainImage} alt={product.name} className="w-full h-auto rounded-lg shadow-md mb-4" />
-              )}
               <div className="flex gap-2 overflow-x-auto">
                 {product.images.map((image, index) => {
-                  const fullImageUrl = getFullUrl(image);
-                  const borderClass = mainImage === fullImageUrl ? 'border-primary' : 'border-transparent';
+                  const borderClass = mainImage === image ? 'border-primary' : 'border-transparent';
                   return (
                     <img
                       loading="lazy"
                       key={index}
-                      src={fullImageUrl}
+                      src={image}
                       alt={`${product.name} thumbnail ${index + 1}`}
                       className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${borderClass}`}
-                      onClick={() => handleThumbnailClick(image)}
+                      onClick={() => setMainImage(image)}
                     />
                   );
                 })}
@@ -140,7 +89,7 @@ const ProductDetails = () => {
                         {product.pdfs.map((pdf, index) => (
                           <a
                             key={index}
-                            href={`${BASE_URL}${pdf.path}`}
+                            href={pdf.path}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
