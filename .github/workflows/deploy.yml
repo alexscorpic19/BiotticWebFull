@@ -31,9 +31,6 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/biottic-backend:${{ github.sha }}
 
-      - name: Create frontend .env file for build
-        run: echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > frontend/.env
-
       - name: Build and push frontend image
         uses: docker/build-push-action@v4
         with:
@@ -62,12 +59,6 @@ jobs:
           } > .env.backend
           echo "backend_env_b64=$(base64 -w 0 .env.backend)" >> $GITHUB_OUTPUT
 
-      - name: Prepare frontend .env file
-        id: create_frontend_env
-        run: |
-          echo "VITE_API_URL=\"${{ secrets.VITE_API_URL }}\"" > .env.frontend
-          echo "frontend_env_b64=$(base64 -w 0 .env.frontend)" >> $GITHUB_OUTPUT
-
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
@@ -77,7 +68,6 @@ jobs:
           script: |
             # Exportar variables de entorno de forma segura
             export BACKEND_ENV_B64='${{ steps.create_backend_env.outputs.backend_env_b64 }}'
-            export FRONTEND_ENV_B64='${{ steps.create_frontend_env.outputs.frontend_env_b64 }}'
             export GHCR_PAT='${{ secrets.GHCR_PAT }}'
             export GITHUB_REPO_OWNER='${{ github.repository_owner }}'
             export IMAGE_TAG='${{ github.sha }}'
@@ -99,7 +89,6 @@ jobs:
 
             # Decodificar y crear los archivos .env a partir de Base64
             echo $BACKEND_ENV_B64 | base64 -d > ./backend/.env
-            echo $FRONTEND_ENV_B64 | base64 -d > ./frontend/.env
 
             # --- DEBUGGING ---
             echo "--- DEBUG INFO ---"
