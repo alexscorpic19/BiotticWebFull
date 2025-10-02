@@ -53,7 +53,7 @@ const ProductForm = () => {
   const images = watch('images');
   const pdfs = watch('pdfs');
 
-  const getFullUrl = (path) => `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${path}`;
+  
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -90,7 +90,7 @@ const ProductForm = () => {
           if (data.images && data.images.length > 0) {
             setValue('images', data.images.map(img => ({
               name: img.split('/').pop(),
-              preview: getFullUrl(img),
+              preview: img,
               path: img,
             })));
           }
@@ -99,7 +99,7 @@ const ProductForm = () => {
           if (data.pdfs && data.pdfs.length > 0) {
             setValue('pdfs', data.pdfs.map(pdf => ({
               ...pdf,
-              preview: getFullUrl(pdf.path),
+              preview: pdf.path,
             })));
           }
         } catch (error) {
@@ -294,7 +294,7 @@ const ProductForm = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         {pdf.path && (
-                           <a href={getFullUrl(pdf.path)} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                           <a href={pdf.path} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
                             <Download className="w-5 h-5" />
                           </a>
                         )}
