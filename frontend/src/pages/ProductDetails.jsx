@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { BASE_URL } from '../../config';
 import { useCart } from '../contexts/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { Helmet } from 'react-helmet'; // Import Helmet
@@ -17,11 +18,11 @@ const ProductDetails = () => {
   const [mainImage, setMainImage] = useState('');
   const [showPdfs, setShowPdfs] = useState(false);
 
-  const getFullUrl = (path) => `${import.meta.env.VITE_API_URL.replace('/api', '')}${path}`;
+  const getFullUrl = (path) => `${import.meta.env.VITE_API_URL}${path}`;
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data } = await axios.get(`/api/products/${id}`);
+        const { data } = await axios.get(`${BASE_URL}/products/${id}`);
         setProduct(data);
         if (data.images && data.images.length > 0) {
           setMainImage(getFullUrl(data.images[0])); // Set first image as main
