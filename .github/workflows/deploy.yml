@@ -38,8 +38,6 @@ jobs:
           file: ./deployment/Dockerfile.frontend
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/biottic-frontend:${{ github.sha }}
-          build-args: |
-            VITE_API_URL=${{ secrets.VITE_API_URL }}
 
   deploy:
     needs: build-and-push
