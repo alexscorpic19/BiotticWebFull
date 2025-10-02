@@ -39,25 +39,25 @@ const About = () => {
       name: 'Carlos Corzo',
       role: 'CEO y Fundador',
       description: 'Líder visionario con más de 15 años de experiencia en tecnología agrícola y gestión empresarial.',
-      image: `${BASE_URL.replace('/api', '')}/uploads/corzo.png`
+      image: `${BASE_URL}/uploads/corzo.png`
     },
     {
       name: 'Jhon A Hernández',
       role: 'Ingeniero de Desarrollo y co Fundador',
       description: 'Ingeniero electronico y desorrollador de sistemas.',
-      image: `${BASE_URL.replace('/api', '')}/uploads/alex.png`
+      image: `${BASE_URL}/uploads/alex.png`
     },
     {
       name: 'Ruth González',
       role: 'Director Comercial',
       description: 'Experto en desarrollo de negocios con amplia experiencia en el sector agroindustrial.',
-      image: `${BASE_URL.replace('/api', '')}/uploads/ruth.png`
+      image: `${BASE_URL}/uploads/ruth.png`
     },
     {
       name: 'Carlos Mario Corzo',
       role: 'Negocios internacionales',
       description: 'Experto en comercio internacional y estrategias de mercado.',
-      image: `${BASE_URL.replace('/api', '')}/uploads/CarlosM.png`
+      image: `${BASE_URL}/uploads/CarlosM.png`
     }
   ];
 
