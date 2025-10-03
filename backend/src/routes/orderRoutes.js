@@ -9,8 +9,12 @@ const {
   deleteOrder,
   exportOrders,
   getOrderByWompiTransactionId,
+  wompiWebhook, // Import the new webhook handler
 } = require('../controllers/orderController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
+
+// WEBHOOK ROUTE for Wompi
+router.route('/wompi-webhook').post(wompiWebhook);
 
 // PUBLIC ROUTE for order status
 router.route('/status/:id').get(getOrderStatusById);

@@ -58,7 +58,7 @@ const addOrderItems = async (req, res) => {
     console.log('--- DEBUG: Generating redirect URL for Order ID:', createdOrder._id.toString(), '---');
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const redirectUrlObject = new URL(`${frontendUrl}/payment-confirmation`);
+    const redirectUrlObject = new URL(`${frontendUrl}/confirmation`);
     redirectUrlObject.searchParams.set('orderId', createdOrder._id.toString());
     const redirectUrl = redirectUrlObject.toString();
 
@@ -74,6 +74,79 @@ const addOrderItems = async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 };
+
+// @desc    Handle Wompi Webhook
+// @route   POST /api/orders/wompi-webhook
+// @access  Public
+const wompiWebhook = async (req, res) => {
+  try {
+    const { data, event, signature } = req.body;
+    console.log('--- WOMPI WEBHOOK RECEIVED ---');
+    console.log('Event:', event);
+    console.log('Data:', JSON.stringify(data, null, 2));
+
+    // Basic validation
+    if (!data || !data.transaction) {
+      console.log('Webhook ignored: No transaction data.');
+      return res.status(400).json({ message: 'Invalid webhook payload' });
+    }
+
+    const { reference, status, id: wompiTransactionId, amount_in_cents, customer_email } = data.transaction;
+
+    // Extract our internal order ID from the reference
+    const orderId = reference.split('-')[0];
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      console.log(`Webhook ignored: Order not found with ID: ${orderId}`);
+      // Respond 200 so Wompi doesn't retry
+      return res.status(200).json({ message: 'Order not found, but acknowledged.' });
+    }
+
+    // Check if the order is already processed
+    if (order.paymentStatus === 'approved') {
+        console.log(`Webhook ignored: Order ${orderId} is already approved.`);
+        return res.status(200).json({ message: 'Order already processed.' });
+    }
+
+    // Update order based on status
+    if (status === 'APPROVED') {
+      order.isPaid = true;
+      order.paidAt = new Date();
+      order.paymentStatus = 'approved';
+      order.paymentResult = {
+        id: wompiTransactionId,
+        status: status,
+        email_address: customer_email,
+        amount: amount_in_cents / 100,
+      };
+      order.paymentReference = wompiTransactionId;
+
+      console.log(`Order ${orderId} updated to APPROVED.`);
+      
+      // You might want to decrease product stock here
+      // for (const item of order.products) {
+      //   await Product.findByIdAndUpdate(item.product, {
+      //     $inc: { countInStock: -item.quantity },
+      //   });
+      // }
+
+    } else if (status === 'DECLINED' || status === 'VOIDED' || status === 'ERROR') {
+      order.paymentStatus = 'failed';
+      console.log(`Order ${orderId} updated to FAILED.`);
+    }
+
+    await order.save();
+
+    res.status(200).json({ message: 'Webhook processed successfully' });
+
+  } catch (error) {
+    console.error('Error processing Wompi webhook:', error);
+    res.status(500).json({ message: 'Server Error processing webhook' });
+  }
+};
+
 
 // @desc    Get all orders
 // @route   GET /api/orders
@@ -222,5 +295,6 @@ module.exports = {
   deleteOrder,
   exportOrders,
   getOrderByWompiTransactionId,
+  wompiWebhook,
 };
 

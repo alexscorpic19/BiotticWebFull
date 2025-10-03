@@ -6,38 +6,36 @@ import { CheckCircle, XCircle, Loader, AlertTriangle, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/Button';
 
 const PaymentConfirmation = () => {
-  const [transaction, setTransaction] = useState(null);
+  const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [orderId, setOrderId] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
     console.log('PaymentConfirmation useEffect triggered.');
     const fetchOrderDetails = async () => {
       const params = new URLSearchParams(location.search);
-      const wompiTransactionId = params.get('id'); // Get Wompi's transaction ID
+      const orderId = params.get('orderId'); // Get our internal order ID
 
-      if (!wompiTransactionId) {
-        setError('No se encontró un ID de transacción de Wompi.');
+      if (!orderId) {
+        setError('No se encontró un ID de orden.');
         setLoading(false);
         return;
       }
 
       try {
-        // Request our backend for order details using Wompi's transaction ID
-        const { data } = await axios.get(`/orders/wompi-transaction/${wompiTransactionId}`);
-        setTransaction({
-          status: data.paymentStatus.toUpperCase(),
-          reference: data._id,
-          status_message: data.orderStatus,
-        });
-        setOrderId(data._id); // Set our internal order ID
-        console.log('Wompi Transaction ID from URL:', wompiTransactionId);
-        console.log('Calling backend for order details with URL:', `/orders/wompi-transaction/${wompiTransactionId}`);
+        // Wait a couple of seconds to give the webhook time to process
+        await new Promise(resolve => setTimeout(resolve, 2500));
+
+        // Request our backend for order details using our internal order ID
+        console.log(`Fetching order status for orderId: ${orderId}`);
+        const { data } = await axios.get(`/orders/status/${orderId}`);
+        setOrder(data);
+        console.log('Order details received from backend:', data);
+
       } catch (err) {
         console.error('Error fetching order details:', err);
-        setError('No se pudo verificar el estado de la orden.');
+        setError('No se pudo verificar el estado de la orden. Si acabas de pagar, espera unos momentos y refresca la página.');
       } finally {
         setLoading(false);
       }
@@ -47,8 +45,8 @@ const PaymentConfirmation = () => {
   }, [location]);
 
   const handleCopy = () => {
-    if (orderId) {
-      navigator.clipboard.writeText(orderId);
+    if (order && order._id) {
+      navigator.clipboard.writeText(order._id);
       alert('ID de la orden copiado al portapapeles.');
     }
   };
@@ -59,6 +57,7 @@ const PaymentConfirmation = () => {
         <div className="text-center">
           <Loader className="animate-spin h-12 w-12 mx-auto text-gray-500 dark:text-gray-400" />
           <p className="mt-4 text-xl dark:text-gray-300">Verificando tu pago...</p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Esto puede tardar un momento.</p>
         </div>
       );
     }
@@ -73,47 +72,47 @@ const PaymentConfirmation = () => {
       );
     }
 
-    if (!transaction) {
+    if (!order) {
       return null;
     }
 
-    switch (transaction.status) {
-      case 'PAID':
+    switch (order.paymentStatus) {
+      case 'approved':
         return (
           <div className="text-center">
             <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
             <h2 className="mt-6 text-3xl font-bold dark:text-gray-100">¡Gracias por tu compra!</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Tu pago ha sido aprobado. Tu orden está siendo procesada.</p>
-            {orderId && (
+            {order._id && (
               <div className="mt-6 bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
                 <p className="text-sm text-gray-600 dark:text-gray-300">Guarda tu ID de orden para hacer seguimiento:</p>
                 <div className="flex items-center justify-center gap-2 mt-2">
-                  <p className="text-lg font-mono text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-1 rounded">{orderId}</p>
+                  <p className="text-lg font-mono text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-1 rounded">{order._id}</p>
                   <Button variant="ghost" size="icon" onClick={handleCopy}>
                     <Copy className="h-5 w-5" />
                   </Button>
                 </div>
-                <Link to={`/track-order?orderId=${orderId}`} className="mt-4 inline-block text-sm text-primary dark:hover:text-primary-dark dark:text-primary-light hover:underline">
+                <Link to={`/track-order?orderId=${order._id}`} className="mt-4 inline-block text-sm text-primary dark:hover:text-primary-dark dark:text-primary-light hover:underline">
                   O haz clic aquí para ver el estado de tu orden.
                 </Link>
               </div>
             )}
           </div>
         );
-      case 'FAILED':
+      case 'failed':
         return (
           <div className="text-center">
             <XCircle className="h-16 w-16 mx-auto text-red-500" />
             <h2 className="mt-6 text-3xl font-bold dark:text-gray-100">Pago Fallido</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">{transaction.status_message || 'Tu pago no pudo ser procesado.'}</p>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Tu pago no pudo ser procesado.</p>
           </div>
         );
-      default:
+      default: // 'pending' or other statuses
         return (
           <div className="text-center">
             <AlertTriangle className="h-16 w-16 mx-auto text-yellow-500" />
-            <h2 className="mt-6 text-3xl font-bold dark:text-gray-100">Estado Pendiente</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">El estado de tu pago es: {transaction.status_message}.</p>
+            <h2 className="mt-6 text-3xl font-bold dark:text-gray-100">Pago Pendiente</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">El estado de tu pago es: {order.paymentStatus}. Si ya pagaste, el estado se actualizará en breve.</p>
           </div>
         );
     }
