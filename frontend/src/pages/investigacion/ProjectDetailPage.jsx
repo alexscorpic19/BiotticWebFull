@@ -41,7 +41,7 @@ const ProjectDetailPage = () => {
     fetchPost();
   }, [id]);
 
-  const getFullUrl = (path) => `${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${path}`;
+  const getFullUrl = (path) => path;
 
   const getYouTubeEmbedUrl = (url) => {
     if (!url) return null;
