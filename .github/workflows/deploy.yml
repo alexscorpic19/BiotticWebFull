@@ -61,6 +61,7 @@ jobs:
             echo "EMAIL_PASS=\"${{ secrets.EMAIL_PASS }}\""
             echo "EMAIL_FROM=\"${{ secrets.EMAIL_FROM }}\""
             echo "EMAIL_TO=\"${{ secrets.EMAIL_TO }}\""
+            echo "FRONTEND_URL=https://biottic.com.co"
           } > .env.backend
           echo "backend_env_b64=$(base64 -w 0 .env.backend)" >> $GITHUB_OUTPUT
 
@@ -95,13 +96,6 @@ jobs:
             # Decodificar y crear los archivos .env a partir de Base64
             echo $BACKEND_ENV_B64 | base64 -d > ./backend/.env
 
-            # --- DEBUGGING ---
-            echo "--- DEBUG INFO ---"
-            echo "Debug: The GITHUB_REPO_OWNER is: '$GITHUB_REPO_OWNER'"
-            echo "Debug: The IMAGE_TAG is: '$IMAGE_TAG'"
-            echo "Debug: Is GHCR_PAT set? (first 5 chars): '${GHCR_PAT:0:5}'"
-            echo "--- END DEBUG INFO ---"
-
             # Crear .env para docker-compose de forma explícita
             echo "IMAGE_TAG=$IMAGE_TAG" > ./deployment/docker-compose.env
 
@@ -113,9 +107,9 @@ jobs:
             echo "Stopping existing services to free up ports..."
             docker compose -f deployment/docker-compose.yml down
 
-            # Usar "docker compose" con la bandera --env-file para máxima fiabilidad
+            # Usar "docker compose" con los archivos de override para máxima fiabilidad
             echo "Pulling new images..."
-            docker compose --env-file ./deployment/docker-compose.env -f deployment/docker-compose.yml pull
+            docker compose --env-file ./deployment/docker-compose.env -f deployment/docker-compose.yml -f deployment/docker-compose.prod.yml pull
             echo "Starting services..."
-            docker compose --env-file ./deployment/docker-compose.env -f deployment/docker-compose.yml up -d --remove-orphans
+            docker compose --env-file ./deployment/docker-compose.env -f deployment/docker-compose.yml -f deployment/docker-compose.prod.yml up -d --remove-orphans
             echo "Deployment finished."

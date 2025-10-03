@@ -1,0 +1,4 @@
+services:
+  backend:
+    environment:
+      FRONTEND_URL: 'https://biottic.com.co'
