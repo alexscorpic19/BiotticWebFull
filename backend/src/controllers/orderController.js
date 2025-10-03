@@ -58,7 +58,7 @@ const addOrderItems = async (req, res) => {
     console.log('--- DEBUG: Generating redirect URL for Order ID:', createdOrder._id.toString(), '---');
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const redirectUrlObject = new URL(`${frontendUrl}/confirmation`);
+    const redirectUrlObject = new URL(`${frontendUrl}/payment-confirmation`);
     redirectUrlObject.searchParams.set('orderId', createdOrder._id.toString());
     const redirectUrl = redirectUrlObject.toString();
 
