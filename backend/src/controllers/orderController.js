@@ -105,8 +105,8 @@ const wompiWebhook = async (req, res) => {
     }
 
     // Check if the order is already processed
-    if (order.paymentStatus === 'approved') {
-        console.log(`Webhook ignored: Order ${orderId} is already approved.`);
+    if (order.paymentStatus === 'paid') {
+        console.log(`Webhook ignored: Order ${orderId} is already paid.`);
         return res.status(200).json({ message: 'Order already processed.' });
     }
 
@@ -114,7 +114,7 @@ const wompiWebhook = async (req, res) => {
     if (status === 'APPROVED') {
       order.isPaid = true;
       order.paidAt = new Date();
-      order.paymentStatus = 'approved';
+      order.paymentStatus = 'paid'; // Corrected value
       order.paymentResult = {
         id: wompiTransactionId,
         status: status,
@@ -123,7 +123,7 @@ const wompiWebhook = async (req, res) => {
       };
       order.paymentReference = wompiTransactionId;
 
-      console.log(`Order ${orderId} updated to APPROVED.`);
+      console.log(`Order ${orderId} updated to PAID.`);
       
       // You might want to decrease product stock here
       // for (const item of order.products) {
