@@ -74,7 +74,7 @@ const ProjectsPage = () => {
                 >
                   {post.images && post.images[0] && (
                     <img loading="lazy" 
-                      src={`${import.meta.env.VITE_API_BASE_URL.replace('/api', '')}${post.images[0]}`}
+                      src={post.images[0]}
                       alt={post.title}
                       className="w-full h-48 object-cover"
                     />
