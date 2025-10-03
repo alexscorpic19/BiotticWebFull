@@ -77,7 +77,7 @@ const PaymentConfirmation = () => {
     }
 
     switch (order.paymentStatus) {
-      case 'approved':
+      case 'paid':
         return (
           <div className="text-center">
             <CheckCircle className="h-16 w-16 mx-auto text-green-500" />
