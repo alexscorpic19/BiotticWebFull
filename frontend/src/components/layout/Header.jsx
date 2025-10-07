@@ -58,22 +58,19 @@ const Header = ({ onCartClick }) => {
   const linkClasses = (scrolled, isActive) => {
     let classes = 'relative px-3 py-2 text-sm font-medium transition-colors duration-200 ';
     if (isActive) {
-      classes += scrolled 
-        ? 'text-emerald-600 dark:text-emerald-400' 
-        : 'text-emerald-300 font-bold [text-shadow:0_0_8px_rgba(5,255,155,0.5)]';
-    } else {
-      classes += scrolled 
-        ? 'text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400' 
-        : 'text-white hover:text-emerald-300';
-    }
-    return classes;
+      classes += 'text-emerald-600 dark:text-emerald-400'; // Consistent active color
+            } else {
+              classes += scrolled 
+                ? 'text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400' 
+                : 'text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400'; // Changed text-white to text-gray-700
+            }    return classes;
   };
   
   const externalLinkClasses = (scrolled) => {
     return `relative px-3 py-2 text-sm font-medium transition-colors duration-200 ${
       scrolled
         ? 'text-gray-700 hover:text-emerald-600'
-        : 'text-white hover:text-emerald-300'
+        : 'text-gray-700 hover:text-emerald-600' // Consistent dark color
     }`;
   }
 
@@ -85,7 +82,7 @@ const Header = ({ onCartClick }) => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50'
-          : 'bg-transparent'
+          : 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,7 +90,7 @@ const Header = ({ onCartClick }) => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img loading="lazy" src="/images/logo.png" alt="Biottic Logo" className="h-10 w-auto" />
-            <span className={`text-2xl font-bold transition-colors duration-200 ${scrolled ? 'text-biottic-blue' : 'text-white'}`}>Biottic</span>
+            <span className={`text-2xl font-bold transition-colors duration-200 ${scrolled ? 'text-biottic-blue' : 'text-gray-700'}`}>Biottic</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -186,11 +183,11 @@ const Header = ({ onCartClick }) => {
               </>
             )}
 
-            <Button onClick={toggleTheme} variant="outline" size="sm" className={`relative ${scrolled ? 'border-gray-300 text-gray-700 hover:bg-gray-100' : 'border-white/50 text-white bg-transparent hover:bg-white/10'}`}>
+            <Button onClick={toggleTheme} variant="outline" size="sm" className={`relative ${scrolled ? 'border-gray-300 text-gray-700 hover:bg-gray-100' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </Button>
 
-            <Button onClick={onCartClick} variant="outline" size="sm" className={`relative ${scrolled ? 'border-gray-300 text-gray-700 hover:bg-emerald-50' : 'border-white/30 text-white bg-transparent hover:bg-white/10'}`}>
+            <Button onClick={onCartClick} variant="outline" size="sm" className={`relative ${scrolled ? 'border-gray-300 text-gray-700 hover:bg-emerald-50' : 'border-gray-300 text-gray-700 hover:bg-emerald-50'}`}>
               <ShoppingCart className="w-4 h-4" />
               {cartItemsCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -202,11 +199,11 @@ const Header = ({ onCartClick }) => {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
-            <Button onClick={toggleTheme} size="sm" className={`relative rounded-md p-2 transition-colors duration-200 ${scrolled ? 'border border-gray-300 text-gray-700 hover:bg-gray-100' : 'border border-white/50 text-white bg-transparent hover:bg-white/10'}`}>
+            <Button onClick={toggleTheme} size="sm" className={`relative rounded-md p-2 transition-colors duration-200 ${scrolled ? 'border border-gray-300 text-gray-700 hover:bg-gray-100' : 'border border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </Button>
 
-            <Button onClick={onCartClick} size="sm" className={`relative rounded-md p-2 transition-colors duration-200 ${scrolled ? 'border border-gray-300 text-gray-700 hover:bg-gray-100' : 'border border-white/50 text-white bg-transparent hover:bg-white/10'}`}>
+            <Button onClick={onCartClick} size="sm" className={`relative rounded-md p-2 transition-colors duration-200 ${scrolled ? 'border border-gray-300 text-gray-700 hover:bg-gray-100' : 'border border-gray-300 text-gray-700 hover:bg-gray-100'}`}>
               <ShoppingCart className="w-4 h-4" />
               {cartItemsCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">

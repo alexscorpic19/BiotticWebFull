@@ -42,7 +42,7 @@ const App = () => {
         <Header onCartClick={handleCartToggle} />
         <CartSidebar isOpen={isCartOpen} onClose={handleCartToggle} />
         <WhatsAppButton />
-        <main className="flex-grow overflow-x-hidden">
+        <main className="flex-grow overflow-x-hidden pt-16">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />

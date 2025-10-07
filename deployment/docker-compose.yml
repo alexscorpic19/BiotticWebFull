@@ -2,6 +2,9 @@ services:
   frontend:
     # Reemplaza 'tu-usuario-de-github' con tu nombre de usuario real
     image: ghcr.io/alexscorpic19/biottic-frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.frontend
     ports:
       - "8082:80"
     networks:
@@ -12,6 +15,9 @@ services:
   backend:
     # Reemplaza 'tu-usuario-de-github' con tu nombre de usuario real
     image: ghcr.io/alexscorpic19/biottic-backend:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.backend
     env_file:
       - ../backend/.env
     ports:
